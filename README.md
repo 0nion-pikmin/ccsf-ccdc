@@ -1,5 +1,7 @@
 # ccsf-ccdc
 City College of San Francisco's CCDC repo (2023)
+
+
 Below is from Travis, a previous CCSF CCDC team member: https://github.com/traviskp/ccdc/tree/master
 
 This repo contains some of the commands used to assist in securing systems for the Collegiate CyberDefense Competition. Our team (City College of SF) finished 2nd place in the 2019 Western Regional Qualifiers. Having everyone up to date on how to work the systems in front of them was key.
