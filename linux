@@ -1,0 +1,164 @@
+(From Travis)
+
+- + - + - + - + - + - + - + - + -
+# User Management
+- + - + - + - + - + - + - + - + -
+
+# Change ALL user passwords
+# List usernames only and output to file:
+awk -F':' '{print $1}' /etc/passwd >> users.txt
+
+# Format users.txt for chpasswd and output to a new file
+sed 's/$/:IsThisIsADogsComplexPassword84/' users.txt >> users1.txt
+cat users1.txt | chpasswd
+
+# Change single user password 
+chpasswd
+root:NewInsecurePassword
+control + d
+
+# Look at sudoers 
+nano /etc/sudoers
+
+# Show shells in use
+awk -F':' {print $7}' /etc/passwd|sort|uniq -c|sort -rn
+
+# View users with bash (or other login shells found above)
+cat /etc/passwd | grep "/bin/bash"
+
+# Add nologin if it doesn't exist
+cat /etc/shells
+echo "/usr/sbin/nologin" >> /etc/shells
+
+# Change user to nologin
+usermod -s /usr/sbin/nologin USERNAME
+
+- + - + - + - + - + - + - + - + -
+# Scheduled actions
+- + - + - + - + - + - + - + - + -
+# Cronjobs
+crontab -l
+cd /etc/cron.daily .hourly .monthly .weekly 
+cd/etc/cron.d
+nano /etc/crontab
+
+- + - + - + - + - + - + - + - + -
+# Backups
+- + - + - + - + - + - + - + - + -
+# Web server
+cp -r /var/www/ .
+
+# History of box 
+cat history >> history_backup1
+
+# Clear history 
+history -c && history -w
+
+- + - + - + - + - + - + - + - + -
+# Services / Connections
+- + - + - + - + - + - + - + - + -
+service --status-all
+
+ps aux | grep telnet
+kill pid
+
+netstat -pant
+kill -9 pid
+
+tail -f /var/log/apache2/access.log
+tail -f /var/log/auth.log
+tail -f /var/log/syslog
+
+- + - + - + - + - + - + - + - + -
+# Updates
+- + - + - + - + - + - + - + - + -
+# Did it early on with no issues, but have heard these can be man in the middled
+apt-get update
+
+# Security updates only
+apt-get install unattended-upgrades 
+
+- + - + - + - + - + - + - + - + -
+# Locate files
+- + - + - + - + - + - + - + - + -
+find . -name "shell.php"
+
+- + - + - + - + - + - + - + - + -
+# Red Team Tricks
+- + - + - + - + - + - + - + - + -
+# Immutable files (Cannot modifiy files, even as root)
+lsattr
+chattr -i /folder orfilename 
+
+# Re enable cursor / fix disappearing text in cmd
+stty echo
+
+- + - + - + - + - + - + - + - + -
+# Quick ping scan
+- + - + - + - + - + - + - + - + -
+nmap -sN 192.168.225.0/24
+
+- + - + - + - + - + - + - + - + -
+# SSH 
+- + - + - + - + - + - + - + - + -
+# = Need to learn about
+nano /etc/ssh/sshd_config
+PermitRootLogin no	
+#Protocol2
+ignoreRhosts yes
+HostBasedAuth no
+PermitEmptyPasswords no
+# x11forward no
+maxauthtries 5
+ciphers aes128-ctr, aes192-ctr, aes256-ctr
+clientaliveint 900
+clientalivecountmax 0
+# usepam yes
+
+# Users currently ssh in
+w
+who 
+who -a
+netstat -tnpa | grep 'ESTABLISHED.*sshd'
+
+# Users with SSH access / access history
+# Forgot to take note of this one, but it was an inject
+
+- + - + - + - + - + - + - + - + -
+Under construction / Didn't use
+- + - + - + - + - + - + - + - + -
+
+# Only all
+chown root:root /etc/ssh/sshd_config
+
+# Packages:
+apt-cache pkgnames | grep telnet rsh, tftp, talk server
+dpkg --list
+
+
+# Remove package:
+apt-get --purge remove packagename
+
+# seLinux 
+# WRCCDC Black team tip: 
+# "without prep and documentation before hand [selinux] can cause your services to go offline.
+nano /etc/selinux/config
+SELINUX = enforcing
+
+# Linux Hardening Guide finds
+# https://github.com/trimstray/the-practical-linux-hardening-guide/wiki/
+
+# Verify only root has UID 0
+# "Multiple accounts with a UID of 0 afford more opportunity for potential intruders to guess 
+# a password for a privileged account."
+awk -F: '$3 == 0 && $1 != "root" { print $1 }' /etc/passwd | xargs passwd -l
+
+# Ensure all files are owned by a user and group
+# Unowned files may be caused by an intruder, by incorrect software installation or draft software removal, 
+# or by failure to remove all files belonging to a deleted account.
+
+# To find out all files that are not owned by any user:
+find / -nouser
+
+# To find out all files that are not owned by any group:
+find / -nogroup
